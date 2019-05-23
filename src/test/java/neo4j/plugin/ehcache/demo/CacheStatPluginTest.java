@@ -13,6 +13,7 @@ public class CacheStatPluginTest {
 
     @Test
     public void testStat(){
+        CacheConfig.statisticsService.getCacheStatistics("serviceCache").clear();
         // This is in a try-block, to make sure we close the driver after the test
         try(Driver driver = GraphDatabase.driver( neo4j.boltURI() , Config.build()
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );

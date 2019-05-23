@@ -17,7 +17,7 @@ public class CachePluginTest {
                 .withEncryptionLevel( Config.EncryptionLevel.NONE ).toConfig() );
             Session session = driver.session() ){
             long start = System.currentTimeMillis();
-            String first = session.run("CALL demo.cache.read(1)")
+            String first = session.run("CALL demo.cache.read(10000)")
                     .single()
                     .get("value").toString();
             long end = System.currentTimeMillis();
@@ -25,14 +25,13 @@ public class CachePluginTest {
             assertTrue((end - start) > 5000);
 
             start = end;
-            String firstAgin = session.run("CALL demo.cache.read(1)")
+            String firstAgin = session.run("CALL demo.cache.read(10000)")
                     .single()
                     .get("value").toString();
 
-            assertTrue((end - start) < 1000);
+            assertTrue((end - start) < 2000);
 
             assertTrue(first.equals(firstAgin));
-
 
         }
 
