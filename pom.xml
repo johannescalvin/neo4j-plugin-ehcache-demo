@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>tech.freecode</groupId>
+    <artifactId>neo4j-plugin-ehcache-demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <neo4j.version>3.5.4</neo4j.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <!-- This is used for a utility that lets us start Neo4j with
+                 a specific Procedure, which is nice for writing tests. -->
+            <groupId>org.neo4j.test</groupId>
+            <artifactId>neo4j-harness</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <!-- Used to send cypher statements to our procedure. -->
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>1.7.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>tech.freecode</groupId>
+            <artifactId>common-algo-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.ehcache/ehcache -->
+        <!-- 需要注意 Ehcache版本 -->
+        <!-- 3.0.0 没有统计相关API -->
+        <!-- 3.7.x 则需要JAVA 9的运行环境,
+           虽然能通过测试，但是以插件方式部署到Neo4j服务器上时,则会报错，
+           导致整个Neo4j没法启动 -->
+        <!-- 反正3.6.0是可用的  -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+
+        <!-- 想基于JSR 107注解开发，从而不需要自己来写缓存存取相关代码 -->
+        <!-- 但没整明白怎么不依赖Spring Boot来搞定这个 -->
+        <!-- 实在不想在插件中引入Spring依赖，放弃了 -->
+        <!--<dependency>-->
+        <!--<groupId>javax.cache</groupId>-->
+        <!--<artifactId>cache-api</artifactId>-->
+        <!--<version>1.1.1</version>-->
+        <!--</dependency>-->
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <!-- 指定JAVA版本，Ehcache3.x 只能运行在JAVA8以更新环境 -->
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <!-- This generates a jar-file with our procedure code,
+                     plus any dependencies marked as `compile` scope.
+                     This should then be deployed in the `plugins` directory
+                     of each Neo4j instance in your deployment.
+                     After a restart, the procedure is available for calling. -->
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
